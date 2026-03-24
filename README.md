@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AARAMBCHAIN — Smart Tourist Safety (SIH demo)
 
-## Getting Started
+Full-stack Next.js app: separate **Authority (Admin)** and **Tourist (User)** logins, SQLite + Prisma, JWT sessions, emergency SOS API, contact form, blockchain activity feed, and dashboards aligned with the tourist-safety UI you described.
 
-First, run the development server:
+## Quick start
 
 ```bash
+cd tourist-safety
+npm install
+npx prisma db push
+npm run db:seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Demo accounts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Role | Email | Password |
+|------|--------|----------|
+| **Admin** | `admin@aarambchain.gov` | `rohan#1234` |
+| **Tourist** | `john@demo.com` | `rohan#1234` |
 
-## Learn More
+Use **Login → Authority (Admin)** vs **Login → Tourist (User)** in the navbar — each flow hits a different API (`/api/auth/admin/login` vs `/api/auth/user/login`) and is rejected if the role does not match.
 
-To learn more about Next.js, take a look at the following resources:
+## Main routes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `/` — Hero & feature preview  
+- `/solution` — Solution, E-FIR link, emergency / IoT sections  
+- `/login`, `/login/admin`, `/login/user` — Separate login entry points  
+- `/dashboard` — Redirects by role to `/dashboard/admin` or `/dashboard/user`  
+- `/dashboard/admin` — Authority metrics, activity feed, tourist registry  
+- `/dashboard/user` — Personal onboarding status, geo-fencing mock, SOS link  
+- `/emergency` — Panic button (`POST /api/emergency`)  
+- `/geo` — Browser GPS → `POST /api/location`  
+- `/blockchain` — On-chain activity list (Prisma)  
+- `/contact` — Form → `POST /api/contact`  
+- `/api/efir/sample` — Sample E-FIR JSON  
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Environment
 
-## Deploy on Vercel
+Copy `.env` and set a long random `JWT_SECRET` for production. `DATABASE_URL` defaults to `file:./dev.db` (SQLite).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Production build
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+If `npm run build` runs out of memory, the script already raises the Node heap; you can also try:
+
+```bash
+set NODE_OPTIONS=--max-old-space-size=8192
+npm run build
+```
+
+On Linux/macOS: `export NODE_OPTIONS=--max-old-space-size=8192`.
+
+Webpack dev cache is disabled in `next.config.mjs` to reduce RAM use on constrained PCs; re-enable the default cache if you have more memory and want faster rebuilds.
+
+If the machine has very little RAM, run the app on another computer or use WSL/cloud — Next.js needs enough free memory to compile.
+
+## Tech stack
+
+- Next.js 14 (App Router), TypeScript, Tailwind CSS  
+- Prisma 5 + SQLite  
+- `jose` (JWT, split sign/verify for Edge middleware)  
+- `bcryptjs` for password hashes  

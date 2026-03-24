@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                     String   @id @default(cuid())
+  email                  String   @unique
+  passwordHash           String
+  name                   String
+  role                   String
+  did                    String?
+  lat                    Float?
+  lng                    Float?
+  address                String?
+  status                 String   @default("SAFE")
+  kycStatus              String   @default("Pending")
+  blockchainIdStatus     String   @default("Pending")
+  locationTrackingStatus String   @default("Pending")
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  emergencies            EmergencyEvent[]
+}
+
+model EmergencyEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lat       Float?
+  lng       Float?
+  accuracy  Float?
+  stepsJson String   @default("[\"pending\",\"pending\",\"pending\",\"pending\"]")
+  resolved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model ContactMessage {
+  id           String   @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String
+  organization String
+  message      String
+  createdAt    DateTime @default(now())
+}
+
+model BlockchainActivity {
+  id         String   @id @default(cuid())
+  hash       String
+  label      String
+  touristDid String?
+  createdAt  DateTime @default(now())
+}
+
+model SystemActivity {
+  id        String   @id @default(cuid())
+  message   String
+  kind      String
+  detail    String?
+  createdAt DateTime @default(now())
+}

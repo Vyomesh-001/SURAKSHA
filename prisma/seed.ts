@@ -1,0 +1,146 @@
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+
+const prisma = new PrismaClient();
+
+async function main() {
+  const DEMO_PASSWORD = "rohan#1234";
+  const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 12);
+
+  await prisma.user.upsert({
+    where: { email: "admin@aarambchain.gov" },
+    update: { passwordHash },
+    create: {
+      email: "admin@aarambchain.gov",
+      passwordHash,
+      name: "Authority Admin",
+      role: "ADMIN",
+      did: null,
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: "john@demo.com" },
+    update: { passwordHash },
+    create: {
+      email: "john@demo.com",
+      passwordHash,
+      name: "John Smith",
+      role: "TOURIST",
+      did: "DID:0x1a2b3c",
+      lat: 28.6129,
+      lng: 77.2295,
+      address: "Tourist Information Center, Rajpath, India Gate, New Delhi, India",
+      status: "SAFE",
+      kycStatus: "Complete",
+      blockchainIdStatus: "Pending",
+      locationTrackingStatus: "Pending",
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: "maria@demo.com" },
+    update: { passwordHash },
+    create: {
+      email: "maria@demo.com",
+      passwordHash,
+      name: "Maria Garcia",
+      role: "TOURIST",
+      did: "DID:0x4d5e6f",
+      lat: 40.758,
+      lng: -73.9855,
+      address: "Visitor Rest Area, New York, USA",
+      status: "SAFE",
+      kycStatus: "Processing",
+      blockchainIdStatus: "Pending",
+      locationTrackingStatus: "Pending",
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: "alex@demo.com" },
+    update: { passwordHash },
+    create: {
+      email: "alex@demo.com",
+      passwordHash,
+      name: "Alex Kumar",
+      role: "TOURIST",
+      did: "DID:0x9f8e7d",
+      lat: 28.55,
+      lng: 77.2,
+      address: "Connaught Place, New Delhi",
+      status: "WARNING",
+      kycStatus: "Complete",
+      blockchainIdStatus: "Complete",
+      locationTrackingStatus: "Complete",
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: "sam@demo.com" },
+    update: { passwordHash },
+    create: {
+      email: "sam@demo.com",
+      passwordHash,
+      name: "Sam Lee",
+      role: "TOURIST",
+      did: "DID:0xabc123",
+      lat: 28.62,
+      lng: 77.21,
+      address: "Restricted zone approach, Delhi",
+      status: "EMERGENCY",
+      kycStatus: "Complete",
+      blockchainIdStatus: "Complete",
+      locationTrackingStatus: "Complete",
+    },
+  });
+
+  const count = await prisma.blockchainActivity.count();
+  if (count === 0) {
+    await prisma.blockchainActivity.createMany({
+      data: [
+        {
+          hash: "0xa1b2c3d4e5f678901234567890abcdef",
+          label: "Tourist ID anchored",
+          touristDid: "DID:0x1a2b3c",
+        },
+        {
+          hash: "0xfedcba098765432109876543210fedcba",
+          label: "E-FIR audit trail",
+          touristDid: "DID:0x4d5e6f",
+        },
+      ],
+    });
+  }
+
+  const actCount = await prisma.systemActivity.count();
+  if (actCount === 0) {
+    await prisma.systemActivity.createMany({
+      data: [
+        {
+          message: "Tourist ID verified",
+          kind: "success",
+          detail: "John Doe — Checkpoint A",
+        },
+        {
+          message: "Geo-fence warning",
+          kind: "warning",
+          detail: "Tourist approaching restricted area",
+        },
+        {
+          message: "Health data received",
+          kind: "info",
+          detail: "IoT band — Normal vitals",
+        },
+      ],
+    });
+  }
+}
+
+main()
+  .then(() => prisma.$disconnect())
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });
