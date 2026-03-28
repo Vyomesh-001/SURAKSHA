@@ -5,7 +5,7 @@ import { Loader2, Navigation, AlertTriangle, Crosshair, MapPin, Search, Shield }
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
-const SatelliteMap = dynamic(() => import("@/components/map/SatelliteMap"), {
+const SatelliteMap = dynamic(() => import("@/components/maps/SatelliteMap"), {
   ssr: false,
   loading: () => <div className="absolute inset-0 flex items-center justify-center bg-slate-50 dark:bg-[#0B0F19]"><Loader2 className="h-8 w-8 animate-spin text-emerald-500" /></div>
 });
