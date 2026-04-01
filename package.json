@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@prisma/client": "5.22.0",
+    "@supabase/supabase-js": "^2.101.1",
     "bcryptjs": "^3.0.3",
     "jose": "^6.2.2",
     "leaflet": "^1.9.4",
